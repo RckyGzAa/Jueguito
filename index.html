@@ -95,6 +95,11 @@ function move(o) { // movimiento con colisiones por eje
 }
 const overlap = (a, b) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
 
+function touchesFlag(p) { // meta: poste alto, 3 casillas de ancho
+  for (let y = 0; y < H; y++) { const x = (level[y] || '').indexOf('F');
+    if (x >= 0) return overlap(p, { x: (x - 1) * T, y: (y - 2) * T, w: 3 * T, h: 4 * T }); }
+  return false;
+}
 function die() { lives--; if (lives <= 0) { state = 'dead'; msg = 'GAME OVER - Enter para reiniciar'; } else load(lvl); }
 
 function update() {
@@ -115,7 +120,7 @@ function update() {
   if (p.y > H * T + 100) die();
   const tx = Math.floor((p.x + p.w / 2) / T), ty = Math.floor((p.y + p.h - 2) / T);
   if (level[ty] && level[ty][tx] === 'S') { die(); return; }
-  if (level[ty] && level[ty][tx] === 'F') { if (lvl + 1 < LEVELS.length) { score += 100; load(lvl + 1); } else { state = 'win'; msg = '¡GANASTE! Puntos: ' + score + ' - Enter para jugar de nuevo'; lvl = 0; } return; }
+  if (touchesFlag(p)) { if (lvl + 1 < LEVELS.length) { score += 100; load(lvl + 1); } else { state = 'win'; msg = '¡GANASTE! Puntos: ' + score + ' - Enter para jugar de nuevo'; lvl = 0; } return; }
   for (const c of coins) if (!c.got && overlap(p, c)) { c.got = true; score += 10; }
   for (const e of enemies) {
     if (!e.alive) continue;
